@@ -1,0 +1,582 @@
+---
+title: "Story - 5 : What Is The Effect Of The Earth's Temperature on Cyclonic Storms?"
+author: "Puja Roy"
+date: "3/31/24"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+### Exercise 1
+
+Insert any text here.
+
+```{r}
+df1 = read.csv("https://raw.githubusercontent.com/pujaroy280/DATA608Story5/main/data.csv")
+df1
+```
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+# Exclude rows 1 through 4, retaining only rows 5 onwards
+df_row <- df1[-(1:4), ]
+
+# Check the structure and dimensions of df_row
+str(df_row)
+dim(df_row)
+
+```
+
+```{r}
+colnames(df_row) <- c("YEAR", "ANOMALY TEMP") # change column names of all the columns in the dataframe print(df)
+df_row
+```
+
+```{r}
+str(df_row)
+```
+```{r}
+#install.packages('weathermetrics')
+library('weathermetrics')
+```
+
+```{r}
+# Convert "ANOMALY TEMP" column to numeric
+df_row$`ANOMALY TEMP` <- as.numeric(df_row$`ANOMALY TEMP`)
+
+# Check the data types again
+str(df_row)
+```
+```{r}
+# Now you can apply the temperature conversion
+df_f <- df_row
+df_f$`ANOMALY TEMP` <- celsius.to.fahrenheit(df_f$`ANOMALY TEMP`)
+df_f
+```
+
+```{r}
+df_index <- df_f                        # Duplicate data
+rownames(df_index) <- 1:nrow(df_index)    # Assign sequence to row names
+df_index 
+```
+
+```{r}
+df_rank <- df_index
+df_rank$RANK <- rank(-df_rank$`ANOMALY TEMP`)
+df_rank
+```
+
+```{r}
+library(DT)
+```
+```{r}
+df_table <- datatable(df_rank)
+df_table
+```
+
+```{r}
+df_rank$`ANOMALY TEMP` <- as.numeric(df_rank$`ANOMALY TEMP`)
+str(df_rank)
+```
+
+```{r}
+#install.packages('plotly')
+library(plotly)
+```
+
+```{r}
+x <- df_rank$YEAR
+y <- df_rank$`ANOMALY TEMP`
+rank <- df_rank$'RANK'
+
+# Create hover text with temperature, year, and rank
+hover_text <- paste("ANOMALY TEMP: ", y, "°F<br>YEAR: ", x, "<br>RANK: ", rank)
+
+fig <- plot_ly(data = df_rank, x = ~x, y = ~y, type = 'bar',
+             text = hover_text,  # Include the hover text with all information
+             hoverinfo = 'text',  # Specify hoverinfo to show the text
+             marker = list(color = 'rgb(192, 57, 79)',
+                           line = list(color = 'rgb(8, 48, 107)', width = 1.5)))
+
+fig <- fig %>% layout(
+  xaxis = list(title = "Year"),
+  yaxis = list(title = "Number of Temperature °F", range = c(32, max(y))),
+  bargap = 0.05,
+  height = 500,  # Adjust the height as needed to make the graph taller
+  width = 800  # Adjust the width to make the graph wider
+)
+```
+
+```{r}
+# Add HTML-based annotations for title and subtitle
+fig <- fig %>% add_annotations(
+  text = "<b>GLOBAL LAND AND OCEAN TEMPERATURE</b>",
+  x = 0, xref = "paper",
+  y = 1.05, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 20),
+  align = "left"
+)
+
+fig <- fig %>% add_annotations(
+  text = "YEARLY TEMPERATURE ANOMALIES 1997 to 2023",
+  x = 0, xref = "paper",
+  y = 0.97, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 16),
+  align = "left"
+)
+
+fig
+```
+
+
+```{r}
+x <- df_rank$YEAR
+y <- df_rank$`ANOMALY TEMP`
+rank <- df_rank$'RANK'
+
+# Create hover text with year, temperature, and rank
+hover_text <- paste("Year: ", x, "<br>ANOMALY TEMP: ", y, "<br>RANK: ", rank)
+
+fig <- plot_ly(x = ~x, y = ~y, type = 'scatter', mode = 'lines', text = hover_text, textposition = 'top',
+             hoverinfo = 'text',  # Specify hoverinfo to show the text
+             line = list(color = 'rgb(192, 57, 79)'))
+
+fig <- fig %>% layout(
+  xaxis = list(title = "Year"),
+  yaxis = list(title = "Temperature °F", range = c(32, max(y))),
+  height = 500,  # Adjust the height as needed
+  width = 800  # Adjust the width as needed
+)
+```
+
+```{r}
+# Add HTML-based annotations for title and subtitle
+fig <- fig %>% add_annotations(
+  text = "<b>GLOBAL LAND AND OCEAN TEMPERATURE</b>",
+  x = 0, xref = "paper",
+  y = 1.05, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 20),
+  align = "left"
+)
+
+fig <- fig %>% add_annotations(
+  text = "YEARLY TEMPERATURE ANOMALIES 1997 to 2023",
+  x = 0, xref = "paper",
+  y = 0.97, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 16),
+  align = "left"
+)
+
+fig
+```
+
+
+
+```{r}
+df2 = read.csv("https://raw.githubusercontent.com/pujaroy280/DATA608Story5/main/data_two.csv")
+df2
+```
+
+```{r}
+df2_row<- df2[-c(1:47, 74), ]
+df2_row
+```
+
+```{r}
+colnames(df2_row) <- c("DATE", "TORNADOES", "FATALITIES") # change column names of all the columns in the dataframe print(df)
+df2_row
+```
+
+```{r}
+df2_index <- df2_row                         # Duplicate data
+rownames(df2_index) <- 1:nrow(df2_index)    # Assign sequence to row names
+df2_index 
+```
+
+```{r}
+# Extract only the year (first four characters) from the YEAR column
+df2_index$Year <- substr(df2_index$DATE, 1, 4)
+
+df2_index$DATE <- NULL
+
+# Print the resulting data frame with the Year column
+df2_index
+```
+
+```{r}
+# Move the "LastColumn" to the first position
+df2_col <- df2_index
+df2_col <- df2_col[, c("Year", names(df2_col)[-which(names(df2_col) == "Year")])]
+
+colnames(df2_col)[1] ="YEAR"
+
+# Print the resulting data frame
+df2_col
+```
+
+```{r}
+str(df2_col)
+```
+
+```{r}
+df2_col$`TORNADOES` <- as.numeric(df2_col$`TORNADOES`)
+df2_col$'FATALITIES' <- as.numeric(df2_col$'FATALITIES')
+str(df2_col)
+```
+
+```{r}
+df2_rank <-df2_col
+df2_rank$'TORNADOES RANK' <- rank(-df2_rank$`TORNADOES`)
+df2_rank$'FATALITIES RANK' <- rank(-df2_rank$`FATALITIES`)
+df2_rank <- df2_rank[, c(1:2, 4, 3, 5:ncol(df2_rank))]
+
+df2_rank
+```
+
+```{r}
+library(DT)
+df2_table <- datatable(df2_rank)
+df2_table
+```
+
+
+```{r}
+library(plotly)
+x <- df2_rank$YEAR
+y <- df2_rank$`TORNADOES`
+rank <- df2_rank$'TORNADOES RANK'
+
+# Create hover text with temperature, year, and rank
+hover_text <- paste("TORNADOES: ", y, "<br>YEAR: ", x, "<br>TORNADOES RANK: ", rank)
+
+fig <- plot_ly(data = df2_rank, x = ~x, y = ~y, type = 'bar',
+             text = hover_text,  # Include the hover text with all information
+             hoverinfo = 'text',  # Specify hoverinfo to show the text
+             marker = list(color = 'GREEN',
+                           line = list(color = 'rgb(8, 48, 107)', width = 1.5)))
+
+fig <- fig %>% layout(
+  xaxis = list(title = "Year"),
+  yaxis = list(title = "Number of Tornadoes", range = c(32, max(y))),
+  bargap = 0.05,
+  height = 500,  # Adjust the height as needed to make the graph taller
+  width = 800  # Adjust the width to make the graph wider
+)
+```
+
+
+```{r}
+# Add HTML-based annotations for title and subtitle
+fig <- fig %>% add_annotations(
+  text = "<b>U.S. TORNADOES</b>",
+  x = 0, xref = "paper",
+  y = 1.05, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 20),
+  align = "left"
+)
+
+fig <- fig %>% add_annotations(
+  text = "1997 TO 2023",
+  x = 0, xref = "paper",
+  y = 0.97, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 16),
+  align = "left"
+)
+
+fig
+```
+
+
+```{r}
+x <- df2_rank$YEAR
+y <- df2_rank$`TORNADOES`
+rank <- df2_rank$'TORNADOES RANK'
+
+# Create hover text with year, temperature, and rank
+hover_text <- paste("Year: ", x, "<br>Tornadoes: ", y, "<br>Tornadoes Rank: ", rank)
+
+fig <- plot_ly(x = ~x, y = ~y, type = 'scatter', mode = 'lines', text = hover_text, textposition = 'top',
+             hoverinfo = 'text',  # Specify hoverinfo to show the text
+             line = list(color = 'GREEN'))
+
+fig <- fig %>% layout(
+  xaxis = list(title = "Year"),
+  yaxis = list(title = "Number of Tornadoes", range = c(32, max(y))),
+  height = 500,  # Adjust the height as needed
+  width = 800  # Adjust the width as needed
+)
+```
+
+```{r}
+# Add HTML-based annotations for title and subtitle
+fig <- fig %>% add_annotations(
+  text = "<b>U.S. TORNADOES</b>",
+  x = 0, xref = "paper",
+  y = 1.05, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 20),
+  align = "left"
+)
+
+fig <- fig %>% add_annotations(
+  text = "1997 TO 2023",
+  x = 0, xref = "paper",
+  y = 0.97, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 16),
+  align = "left"
+)
+
+fig
+```
+
+```{r}
+x <- df2_rank$YEAR
+y <- df2_rank$`FATALITIES`
+rank <- df2_rank$'FATALITIES RANK'
+
+# Create hover text with year, temperature, and rank
+hover_text <- paste("Year: ", x, "<br>Fatalities: ", y, "<br>Fatalities Rank: ", rank)
+
+fig <- plot_ly(x = ~x, y = ~y, type = 'scatter', mode = 'lines', text = hover_text, textposition = 'top',
+             hoverinfo = 'text',  # Specify hoverinfo to show the text
+             line = list(color = 'BLUE'))
+
+fig <- fig %>% layout(
+  xaxis = list(title = "Year"),
+  yaxis = list(title = "Number of Fatalities", range = c(32, max(y))),
+  height = 500,  # Adjust the height as needed
+  width = 800  # Adjust the width as needed
+)
+```
+
+```{r}
+# Add HTML-based annotations for title and subtitle
+fig <- fig %>% add_annotations(
+  text = "<b>U.S. FATALITIES FROM TORNADOES</b>",
+  x = 0, xref = "paper",
+  y = 1.05, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 20),
+  align = "left"
+)
+
+fig <- fig %>% add_annotations(
+  text = "1997 TO 2023",
+  x = 0, xref = "paper",
+  y = 0.97, yref = "paper",
+  showarrow = FALSE,
+  font = list(size = 16),
+  align = "left"
+)
+
+fig
+```
+
+```{r}
+df3 = read.csv("https://raw.githubusercontent.com/pujaroy280/DATA608Story5/main/Global%20Historical%20Tropical%20Cyclone%20Statistics.csv")
+df3
+```
+
+```{r}
+df3_row<- df3[-c(1:17), ]
+df3_row
+```
+
+```{r}
+colnames(df3_row) <- c("YEAR", "NAMED STORMS", "NAME STORM DAYS", "HURRICAINES", "HURRICAINES DAYS", "CAT 3 AND ABOVE HURRICAINES", "CAT 3 AND ABOVE HURRICAINES DAYS", "ACCUMULATED CYCLONE ENERGY") # change column names of all the columns in the dataframe print(df)
+df3_row
+```
+
+```{r}
+df3_index <- df3_row                        # Duplicate data
+rownames(df3_index) <- 1:nrow(df3_index)    # Assign sequence to row names
+df3_index 
+```
+
+```{r}
+str(df3_index)
+```
+
+```{r}
+df3_rank <- df3_index
+df3_rank$'YEAR' <- as.character(df3_rank$'YEAR')
+df3_rank$`NAMED STORMS` <- as.numeric(df3_rank$`NAMED STORMS`)
+df3_rank$'HURRICAINES' <- as.numeric(df3_rank$'HURRICAINES')
+df3_rank$'CAT 3 AND ABOVE HURRICAINES' <- as.numeric(df3_rank$'CAT 3 AND ABOVE HURRICAINES')
+str(df3_rank)
+```
+
+```{r}
+df3_rank$'NAMED STORMS RANK' <- rank(-df3_index$`NAMED STORMS`)
+df3_rank$'HURRICAINES RANK' <- rank(-df3_index$`HURRICAINES`)
+df3_rank$'CAT 3 AND ABOVE HURRICAINES RANK' <- rank(-df3_index$'CAT 3 AND ABOVE HURRICAINES')
+df3_rank$'ACCUMULATED CYCLONE ENERGY RANK' <- rank(-df3_index$'ACCUMULATED CYCLONE ENERGY')
+df3_rank <- df3_rank[, c(1:2, 9, 3:4, 10, 5:6, 11, 7:8, 12:ncol(df3_rank))]
+df3_rank
+```
+
+```{r}
+df3_table <- datatable(df3_rank)
+df3_table
+```
+
+
+```{r}
+library(ggplot2)
+library(ggrepel)
+```
+
+```{r}
+# Your existing ggplot code
+p1 <- ggplot(df3_rank, aes(x = YEAR, y = HURRICAINES, label = HURRICAINES)) +
+  geom_point(color = "#69b3a2") +
+  geom_text_repel(data = df3_rank[!is.na(df3_rank$YEAR), , ]) +
+  geom_segment(
+    color = "#69b3a2",
+    aes(
+      xend = c(tail(YEAR, n = -1), NA),
+      yend = c(tail(HURRICAINES, n = -1), NA)
+    ),
+    arrow = arrow(length = unit(0.3, "cm"))
+  ) +
+  labs(x = "Year", y = "Number of Hurricaines") +
+  theme(legend.position = "none")
+
+# Rotate year labels by 45 degrees
+p1 <- p1 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Adjust height and width
+p1 <- p1 + theme(
+  plot.background = element_rect(fill = "white"),
+  plot.margin = margin(20, 20, 20, 20)
+)
+
+# Add title and subtitle
+p1 <- p1 + labs(
+  title = "HURRICAINES PER YEAR",
+  subtitle = "1997 to 2023"
+)
+
+# Align title to the left
+p1 <- p1 + theme(
+  plot.title = element_text(hjust = 0)
+)
+
+# Change plot dimensions
+p1 <- p1 + theme(
+  plot.background = element_rect(fill = "white"),
+  plot.margin = margin(20, 20, 20, 20)
+)
+
+# Print the modified plot
+p1
+```
+
+```{r}
+# Load necessary libraries if not loaded
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+```{r}
+# Assuming your data is named df3_rank and has the structure mentioned
+
+# Create a new variable "Category" for faceting
+df3_rank <- df3_rank %>%
+  pivot_longer(cols = c("NAMED STORMS", "HURRICAINES", "CAT 3 AND ABOVE HURRICAINES"),
+               names_to = "Category", values_to = "Count")
+
+# Define the order of the facets
+category_order <- c("NAMED STORMS", "HURRICAINES", "CAT 3 AND ABOVE HURRICAINES")
+
+# Reorder the levels of the "Category" factor
+df3_rank$Category <- factor(df3_rank$Category, levels = category_order)
+
+# Plot the data using facets and add connecting lines
+p <- ggplot(df3_rank, aes(x = YEAR, y = Count, color = Category, group = Category)) +
+  geom_point() +
+  geom_line() +
+  facet_wrap(~Category, scales = "free_y", nrow = 3) +
+  labs(x = "Year", y = "Count") +
+  theme_minimal() +
+  theme(legend.position = "bottom") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Add title and subtitle
+p <- p + labs(
+  title = "Meteorological Statistics Over the Years",
+  subtitle = "Yearly counts of meteorological events from 1997 to 2023"
+)
+
+# Set custom colors for the lines
+p <- p + scale_color_manual(values = c("NAMED STORMS" = "blue", "HURRICAINES" = "green", "CAT 3 AND ABOVE HURRICAINES" = "red"))
+
+# Print the modified plot
+print(p)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
